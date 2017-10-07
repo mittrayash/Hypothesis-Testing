@@ -32,7 +32,7 @@ from scipy.stats import ttest_ind
 # 
 # Each function in this assignment below is worth 10%, with the exception of ```run_ttest()```, which is worth 50%.
 
-# In[2]:
+# In[3]:
 
 # Use this dictionary to map state names to two letter acronyms
 import numpy as np
@@ -40,19 +40,13 @@ import pandas as pd
 states = {'OH': 'Ohio', 'KY': 'Kentucky', 'AS': 'American Samoa', 'NV': 'Nevada', 'WY': 'Wyoming', 'NA': 'National', 'AL': 'Alabama', 'MD': 'Maryland', 'AK': 'Alaska', 'UT': 'Utah', 'OR': 'Oregon', 'MT': 'Montana', 'IL': 'Illinois', 'TN': 'Tennessee', 'DC': 'District of Columbia', 'VT': 'Vermont', 'ID': 'Idaho', 'AR': 'Arkansas', 'ME': 'Maine', 'WA': 'Washington', 'HI': 'Hawaii', 'WI': 'Wisconsin', 'MI': 'Michigan', 'IN': 'Indiana', 'NJ': 'New Jersey', 'AZ': 'Arizona', 'GU': 'Guam', 'MS': 'Mississippi', 'PR': 'Puerto Rico', 'NC': 'North Carolina', 'TX': 'Texas', 'SD': 'South Dakota', 'MP': 'Northern Mariana Islands', 'IA': 'Iowa', 'MO': 'Missouri', 'CT': 'Connecticut', 'WV': 'West Virginia', 'SC': 'South Carolina', 'LA': 'Louisiana', 'KS': 'Kansas', 'NY': 'New York', 'NE': 'Nebraska', 'OK': 'Oklahoma', 'FL': 'Florida', 'CA': 'California', 'CO': 'Colorado', 'PA': 'Pennsylvania', 'DE': 'Delaware', 'NM': 'New Mexico', 'RI': 'Rhode Island', 'MN': 'Minnesota', 'VI': 'Virgin Islands', 'NH': 'New Hampshire', 'MA': 'Massachusetts', 'GA': 'Georgia', 'ND': 'North Dakota', 'VA': 'Virginia'}
 
 
-# In[17]:
+# In[4]:
 
 city_homes = pd.read_csv("City_Zhvi_AllHomes.csv")
 city_homes.head(100)
 
 
-# In[18]:
-
-gdp = pd.read_excel("gdplev.xls")
-gdp.head(100)
-
-
-# In[47]:
+# In[8]:
 
 def get_list_of_university_towns():
     '''Returns a DataFrame of towns and the states they are in from the 
@@ -85,25 +79,45 @@ def get_list_of_university_towns():
         df = pd.DataFrame(state_towns,columns = ['State','RegionName'])
     return df
 
-get_list_of_university_towns()
+university_towns_df = get_list_of_university_towns()
+university_towns_df.head()
 
 
-# In[ ]:
+# In[65]:
 
 def get_recession_start():
     '''Returns the year and quarter of the recession start time as a 
     string value in a format such as 2005q3'''
-    
-    return "ANSWER"
+    gdp = pd.read_excel("gdplev.xls", skiprows=219)
+    gdp = gdp[['1999q4', 9926.1]]
+    gdp.columns = ["Quarter", "GDP"]
+    for i in range(2, len(gdp)):
+        if (gdp.iloc[i-2][1] > gdp.iloc[i-1][1]) and (gdp.iloc[i-1][1] > gdp.iloc[i][1]):
+            ans = i
+            break
+            
+    return gdp.iloc[i-2][0]
+get_recession_start()
 
 
-# In[ ]:
+# In[77]:
 
 def get_recession_end():
     '''Returns the year and quarter of the recession end time as a 
     string value in a format such as 2005q3'''
-       
-    return "ANSWER"
+    gdp = pd.read_excel("gdplev.xls", skiprows=219)
+    gdp = gdp[['1999q4', 9926.1]]
+    gdp.columns = ["Quarter", "GDP"]
+    gdp_start = get_recession_start()
+    start_index = gdp[gdp['Quarter'] == gdp_start].index.tolist()[0]
+    gdp=gdp.iloc[start_index:]
+    for i in range(2, len(gdp)):
+        if (gdp.iloc[i-2][1] < gdp.iloc[i-1][1]) and (gdp.iloc[i-1][1] < gdp.iloc[i][1]):
+            ans = i
+            break
+            
+    return gdp.iloc[i][0]
+get_recession_end()
 
 
 # In[ ]:
