@@ -7,7 +7,7 @@
 # 
 # ---
 
-# In[ ]:
+# In[19]:
 
 import pandas as pd
 import numpy as np
@@ -40,11 +40,6 @@ import pandas as pd
 states = {'OH': 'Ohio', 'KY': 'Kentucky', 'AS': 'American Samoa', 'NV': 'Nevada', 'WY': 'Wyoming', 'NA': 'National', 'AL': 'Alabama', 'MD': 'Maryland', 'AK': 'Alaska', 'UT': 'Utah', 'OR': 'Oregon', 'MT': 'Montana', 'IL': 'Illinois', 'TN': 'Tennessee', 'DC': 'District of Columbia', 'VT': 'Vermont', 'ID': 'Idaho', 'AR': 'Arkansas', 'ME': 'Maine', 'WA': 'Washington', 'HI': 'Hawaii', 'WI': 'Wisconsin', 'MI': 'Michigan', 'IN': 'Indiana', 'NJ': 'New Jersey', 'AZ': 'Arizona', 'GU': 'Guam', 'MS': 'Mississippi', 'PR': 'Puerto Rico', 'NC': 'North Carolina', 'TX': 'Texas', 'SD': 'South Dakota', 'MP': 'Northern Mariana Islands', 'IA': 'Iowa', 'MO': 'Missouri', 'CT': 'Connecticut', 'WV': 'West Virginia', 'SC': 'South Carolina', 'LA': 'Louisiana', 'KS': 'Kansas', 'NY': 'New York', 'NE': 'Nebraska', 'OK': 'Oklahoma', 'FL': 'Florida', 'CA': 'California', 'CO': 'Colorado', 'PA': 'Pennsylvania', 'DE': 'Delaware', 'NM': 'New Mexico', 'RI': 'Rhode Island', 'MN': 'Minnesota', 'VI': 'Virgin Islands', 'NH': 'New Hampshire', 'MA': 'Massachusetts', 'GA': 'Georgia', 'ND': 'North Dakota', 'VA': 'Virginia'}
 
 
-# In[11]:
-
-get_ipython().system(' cat "university_towns.txt"')
-
-
 # In[17]:
 
 city_homes = pd.read_csv("City_Zhvi_AllHomes.csv")
@@ -57,7 +52,7 @@ gdp = pd.read_excel("gdplev.xls")
 gdp.head(100)
 
 
-# In[6]:
+# In[47]:
 
 def get_list_of_university_towns():
     '''Returns a DataFrame of towns and the states they are in from the 
@@ -70,9 +65,26 @@ def get_list_of_university_towns():
     1. For "State", removing characters from "[" to the end.
     2. For "RegionName", when applicable, removing every character from " (" to the end.
     3. Depending on how you read the data, you may need to remove newline character '\n'. '''
-    university_towns = pd.read_csv("university_towns.txt", sep=" ", header=None)
-    
-    return "ANSWER"
+    with open("university_towns.txt") as file:
+        
+        state = None
+        state_towns = []
+        
+        for line in file:
+            
+            if "[edit]" in line:
+                state = line[:-7]
+                continue
+                
+            if '(' in line:
+                city = line[: line.index('(') - 1]
+                
+            state_towns.append([state, city])
+            
+            
+        df = pd.DataFrame(state_towns,columns = ['State','RegionName'])
+    return df
+
 get_list_of_university_towns()
 
 
