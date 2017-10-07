@@ -100,7 +100,7 @@ def get_recession_start():
 get_recession_start()
 
 
-# In[77]:
+# In[80]:
 
 def get_recession_end():
     '''Returns the year and quarter of the recession end time as a 
@@ -120,16 +120,28 @@ def get_recession_end():
 get_recession_end()
 
 
-# In[ ]:
+# In[126]:
 
 def get_recession_bottom():
     '''Returns the year and quarter of the recession bottom time as a 
     string value in a format such as 2005q3'''
+    #A recession bottom is the quarter within a recession which had the lowest GDP.
+    gdp = pd.read_excel("gdplev.xls", skiprows=219)
+    gdp = gdp[['1999q4', 9926.1]]
+    gdp.columns = ["Quarter", "GDP"]
+    gdp_start = get_recession_start()
+    start_index = gdp[gdp['Quarter'] == gdp_start].index.tolist()[0]
+    gdp_end = get_recession_end()
+    end_index = gdp[gdp['Quarter'] == gdp_end].index.tolist()[0]
+    gdp=gdp.iloc[start_index: end_index + 1]
     
-    return "ANSWER"
+    minIndex = gdp['GDP'].argmin()
+    
+    return gdp[gdp['Quarter'].index == minIndex]['Quarter'].tolist()[0]
+get_recession_bottom()
 
 
-# In[ ]:
+# In[79]:
 
 def convert_housing_data_to_quarters():
     '''Converts the housing data to quarters and returns it as mean 
