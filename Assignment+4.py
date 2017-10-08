@@ -154,7 +154,7 @@ def convert_housing_data_to_quarters():
 convert_housing_data_to_quarters()
 
 
-# In[83]:
+# In[84]:
 
 def convert_housing_data_to_quarters():
     '''Converts the housing data to quarters and returns it as mean 
