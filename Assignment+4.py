@@ -7,7 +7,7 @@
 # 
 # ---
 
-# In[19]:
+# In[4]:
 
 import pandas as pd
 import numpy as np
@@ -32,7 +32,7 @@ from scipy.stats import ttest_ind
 # 
 # Each function in this assignment below is worth 10%, with the exception of ```run_ttest()```, which is worth 50%.
 
-# In[3]:
+# In[5]:
 
 # Use this dictionary to map state names to two letter acronyms
 import numpy as np
@@ -40,13 +40,7 @@ import pandas as pd
 states = {'OH': 'Ohio', 'KY': 'Kentucky', 'AS': 'American Samoa', 'NV': 'Nevada', 'WY': 'Wyoming', 'NA': 'National', 'AL': 'Alabama', 'MD': 'Maryland', 'AK': 'Alaska', 'UT': 'Utah', 'OR': 'Oregon', 'MT': 'Montana', 'IL': 'Illinois', 'TN': 'Tennessee', 'DC': 'District of Columbia', 'VT': 'Vermont', 'ID': 'Idaho', 'AR': 'Arkansas', 'ME': 'Maine', 'WA': 'Washington', 'HI': 'Hawaii', 'WI': 'Wisconsin', 'MI': 'Michigan', 'IN': 'Indiana', 'NJ': 'New Jersey', 'AZ': 'Arizona', 'GU': 'Guam', 'MS': 'Mississippi', 'PR': 'Puerto Rico', 'NC': 'North Carolina', 'TX': 'Texas', 'SD': 'South Dakota', 'MP': 'Northern Mariana Islands', 'IA': 'Iowa', 'MO': 'Missouri', 'CT': 'Connecticut', 'WV': 'West Virginia', 'SC': 'South Carolina', 'LA': 'Louisiana', 'KS': 'Kansas', 'NY': 'New York', 'NE': 'Nebraska', 'OK': 'Oklahoma', 'FL': 'Florida', 'CA': 'California', 'CO': 'Colorado', 'PA': 'Pennsylvania', 'DE': 'Delaware', 'NM': 'New Mexico', 'RI': 'Rhode Island', 'MN': 'Minnesota', 'VI': 'Virgin Islands', 'NH': 'New Hampshire', 'MA': 'Massachusetts', 'GA': 'Georgia', 'ND': 'North Dakota', 'VA': 'Virginia'}
 
 
-# In[4]:
-
-city_homes = pd.read_csv("City_Zhvi_AllHomes.csv")
-city_homes.head(100)
-
-
-# In[8]:
+# In[6]:
 
 def get_list_of_university_towns():
     '''Returns a DataFrame of towns and the states they are in from the 
@@ -83,7 +77,7 @@ university_towns_df = get_list_of_university_towns()
 university_towns_df.head()
 
 
-# In[65]:
+# In[7]:
 
 def get_recession_start():
     '''Returns the year and quarter of the recession start time as a 
@@ -100,7 +94,7 @@ def get_recession_start():
 get_recession_start()
 
 
-# In[80]:
+# In[8]:
 
 def get_recession_end():
     '''Returns the year and quarter of the recession end time as a 
@@ -120,7 +114,7 @@ def get_recession_end():
 get_recession_end()
 
 
-# In[126]:
+# In[9]:
 
 def get_recession_bottom():
     '''Returns the year and quarter of the recession bottom time as a 
@@ -141,7 +135,7 @@ def get_recession_bottom():
 get_recession_bottom()
 
 
-# In[79]:
+# In[10]:
 
 def convert_housing_data_to_quarters():
     '''Converts the housing data to quarters and returns it as mean 
@@ -154,8 +148,46 @@ def convert_housing_data_to_quarters():
     
     The resulting dataframe should have 67 columns, and 10,730 rows.
     '''
+    city_homes = pd.read_csv("City_Zhvi_AllHomes.csv")
+    city_homes = city_homes.drop(['1996-04','2000-01'], axis=1)
+    return city_homes
+convert_housing_data_to_quarters()
+
+
+# In[83]:
+
+def convert_housing_data_to_quarters():
+    '''Converts the housing data to quarters and returns it as mean 
+    values in a dataframe. This dataframe should be a dataframe with
+    columns for 2000q1 through 2016q3, and should have a multi-index
+    in the shape of ["State","RegionName"].
     
-    return "ANSWER"
+    Note: Quarters are defined in the assignment description, they are
+    not arbitrary three month periods.
+    
+    The resulting dataframe should have 67 columns, and 10,730 rows.
+    '''
+    data = pd.read_csv('City_Zhvi_AllHomes.csv')
+    data.drop(['Metro','CountyName','RegionID','SizeRank'],axis=1,inplace=1)
+    data['State'] = data['State'].map(states)
+    data.set_index(['State','RegionName'],inplace=True)
+    col = list(data.columns)
+    col = col[45:]
+    data = data[col]
+    
+    years = [i for i in range(2000, 2017)]
+    quarters = ['q1', 'q2', 'q3', 'q4']
+    new_cols = [str(i) + j for i in years for j in quarters]
+    new_cols.remove('2016q4')
+    
+    qs = [list(data.columns)[x:x+3] for x in range(0, len(list(data.columns)), 3)]
+    
+    for setx, element in zip(qs, new_cols):
+        data[element] = data[setx].mean(axis=1)
+    data = data[new_cols]
+    
+    return data
+convert_housing_data_to_quarters()
 
 
 # In[ ]:
