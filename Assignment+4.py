@@ -7,7 +7,7 @@
 # 
 # ---
 
-# In[4]:
+# In[74]:
 
 import pandas as pd
 import numpy as np
@@ -32,7 +32,7 @@ from scipy.stats import ttest_ind
 # 
 # Each function in this assignment below is worth 10%, with the exception of ```run_ttest()```, which is worth 50%.
 
-# In[5]:
+# In[4]:
 
 # Use this dictionary to map state names to two letter acronyms
 import numpy as np
@@ -40,7 +40,7 @@ import pandas as pd
 states = {'OH': 'Ohio', 'KY': 'Kentucky', 'AS': 'American Samoa', 'NV': 'Nevada', 'WY': 'Wyoming', 'NA': 'National', 'AL': 'Alabama', 'MD': 'Maryland', 'AK': 'Alaska', 'UT': 'Utah', 'OR': 'Oregon', 'MT': 'Montana', 'IL': 'Illinois', 'TN': 'Tennessee', 'DC': 'District of Columbia', 'VT': 'Vermont', 'ID': 'Idaho', 'AR': 'Arkansas', 'ME': 'Maine', 'WA': 'Washington', 'HI': 'Hawaii', 'WI': 'Wisconsin', 'MI': 'Michigan', 'IN': 'Indiana', 'NJ': 'New Jersey', 'AZ': 'Arizona', 'GU': 'Guam', 'MS': 'Mississippi', 'PR': 'Puerto Rico', 'NC': 'North Carolina', 'TX': 'Texas', 'SD': 'South Dakota', 'MP': 'Northern Mariana Islands', 'IA': 'Iowa', 'MO': 'Missouri', 'CT': 'Connecticut', 'WV': 'West Virginia', 'SC': 'South Carolina', 'LA': 'Louisiana', 'KS': 'Kansas', 'NY': 'New York', 'NE': 'Nebraska', 'OK': 'Oklahoma', 'FL': 'Florida', 'CA': 'California', 'CO': 'Colorado', 'PA': 'Pennsylvania', 'DE': 'Delaware', 'NM': 'New Mexico', 'RI': 'Rhode Island', 'MN': 'Minnesota', 'VI': 'Virgin Islands', 'NH': 'New Hampshire', 'MA': 'Massachusetts', 'GA': 'Georgia', 'ND': 'North Dakota', 'VA': 'Virginia'}
 
 
-# In[6]:
+# In[5]:
 
 def get_list_of_university_towns():
     '''Returns a DataFrame of towns and the states they are in from the 
@@ -77,7 +77,7 @@ university_towns_df = get_list_of_university_towns()
 university_towns_df.head()
 
 
-# In[7]:
+# In[6]:
 
 def get_recession_start():
     '''Returns the year and quarter of the recession start time as a 
@@ -94,7 +94,7 @@ def get_recession_start():
 get_recession_start()
 
 
-# In[8]:
+# In[7]:
 
 def get_recession_end():
     '''Returns the year and quarter of the recession end time as a 
@@ -114,7 +114,7 @@ def get_recession_end():
 get_recession_end()
 
 
-# In[9]:
+# In[8]:
 
 def get_recession_bottom():
     '''Returns the year and quarter of the recession bottom time as a 
@@ -135,7 +135,7 @@ def get_recession_bottom():
 get_recession_bottom()
 
 
-# In[10]:
+# In[9]:
 
 def convert_housing_data_to_quarters():
     '''Converts the housing data to quarters and returns it as mean 
@@ -154,7 +154,7 @@ def convert_housing_data_to_quarters():
 convert_housing_data_to_quarters()
 
 
-# In[84]:
+# In[10]:
 
 def convert_housing_data_to_quarters():
     '''Converts the housing data to quarters and returns it as mean 
@@ -190,7 +190,7 @@ def convert_housing_data_to_quarters():
 convert_housing_data_to_quarters()
 
 
-# In[ ]:
+# In[90]:
 
 def run_ttest():
     '''First creates new data showing the decline or growth of housing prices
@@ -207,5 +207,34 @@ def run_ttest():
     depending on which has a lower mean price ratio (which is equivilent to a
     reduced market loss).'''
     
-    return "ANSWER"
+    #period = [get_recession_start(), get_recession_bottom()]
+    data = convert_housing_data_to_quarters().loc[:, get_recession_start() : get_recession_end()]
+    
+    recession_start = get_recession_start()
+    recession_bottom = get_recession_bottom()
+    
+    def price_ratio(row):
+        return ( row[recession_start] - row[recession_bottom] )/row[recession_start]
+    
+    data['change'] = data.apply(price_ratio, axis=1)
+    uni_town = get_list_of_university_towns()['RegionName']
+    uni_town = set(uni_town)
+    data = data.reset_index()
+    def is_uni_town(row):
+        if row['RegionName'] in uni_town:
+            return 1
+        else:
+            return 0
+    data['is_uni'] = data.apply(is_uni_town,axis=1)
+    uni = data[data['is_uni'] == 1].loc[:,'change'].dropna()
+    non_uni = data[data['is_uni'] == 0].loc[:,'change'].dropna()
+    
+    p_value = ttest_ind(uni, non_uni, axis=0)[1]
+    uni_mean = uni.mean()
+    non_uni_mean = non_uni.mean()
+    if p_value < 0.01 and non_uni_mean > uni_mean:
+        return (True, p_value, "university town")
+    elif p_value < 0.01 and non_uni_mean < uni_mean:
+        return (True, p_value, "non-university town")
+run_ttest()
 
