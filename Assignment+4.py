@@ -135,7 +135,7 @@ def get_recession_bottom():
 get_recession_bottom()
 
 
-# In[9]:
+# In[4]:
 
 def convert_housing_data_to_quarters():
     '''Converts the housing data to quarters and returns it as mean 
@@ -147,46 +147,19 @@ def convert_housing_data_to_quarters():
     not arbitrary three month periods.
     
     The resulting dataframe should have 67 columns, and 10,730 rows.
-    '''
-    city_homes = pd.read_csv("City_Zhvi_AllHomes.csv")
-    city_homes = city_homes.drop(['1996-04','2000-01'], axis=1)
-    return city_homes
-convert_housing_data_to_quarters()
+   '''
+    df=pd.read_csv("City_Zhvi_AllHomes.csv")
+    df.drop(['Metro','CountyName','RegionID','SizeRank'],axis=1,inplace=1)
+    df=df.set_index(["State","RegionName"])
+    df1 = df.iloc[:,45:]
 
-
-# In[10]:
-
-def convert_housing_data_to_quarters():
-    '''Converts the housing data to quarters and returns it as mean 
-    values in a dataframe. This dataframe should be a dataframe with
-    columns for 2000q1 through 2016q3, and should have a multi-index
-    in the shape of ["State","RegionName"].
-    
-    Note: Quarters are defined in the assignment description, they are
-    not arbitrary three month periods.
-    
-    The resulting dataframe should have 67 columns, and 10,730 rows.
-    '''
-    data = pd.read_csv('City_Zhvi_AllHomes.csv')
-    data.drop(['Metro','CountyName','RegionID','SizeRank'],axis=1,inplace=1)
-    data['State'] = data['State'].map(states)
-    data.set_index(['State','RegionName'],inplace=True)
-    col = list(data.columns)
-    col = col[45:]
-    data = data[col]
-    
-    years = [i for i in range(2000, 2017)]
-    quarters = ['q1', 'q2', 'q3', 'q4']
-    new_cols = [str(i) + j for i in years for j in quarters]
-    new_cols.remove('2016q4')
-    
-    qs = [list(data.columns)[x:x+3] for x in range(0, len(list(data.columns)), 3)]
-    
-    for setx, element in zip(qs, new_cols):
-        data[element] = data[setx].mean(axis=1)
-    data = data[new_cols]
-    
-    return data
+    qs = [list(df1.columns)[x:x+3] for x in range(0, len(list(df1.columns)), 3)]
+    colnames = [(str(i) + 'q' + str(j)) for i in range(2000, 2017) for j in range(1, 5)]
+    colnames = colnames[:-1]
+    for grp, col in zip(qs, colnames):
+        df1[col] = np.mean(df1[grp], axis=1)
+    df2 = df1.iloc[:, 200:]
+    return df2
 convert_housing_data_to_quarters()
 
 
